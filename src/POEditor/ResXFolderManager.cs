@@ -64,7 +64,11 @@
             {
                 var language = string.Equals(file.First().Language, defaultLanguage, StringComparison.InvariantCultureIgnoreCase) ? string.Empty : file.First().Language;
                 var (relativePath, _) = this.ParseName(file.First().Name, language);
-                using (var writer = new ResXResourceWriter(Path.Combine(rootPath, relativePath)))
+
+                var absolutePath = Path.Combine(rootPath, relativePath);
+                Directory.CreateDirectory(Path.GetDirectoryName(absolutePath));
+
+                using (var writer = new ResXResourceWriter(absolutePath))
                 {
                     foreach (var translation in file)
                     {
