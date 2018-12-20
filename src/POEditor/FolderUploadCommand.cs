@@ -22,6 +22,9 @@
         [Option(CommandOptionType.SingleValue)]
         public string Path { get; set; }
 
+        [Option(CommandOptionType.MultipleValue, ShortName = "l", Description = "Language(s) to upload")]
+        public string[] Language { get; set; }
+
         public override async Task<int> OnExecuteAsync(CommandLineApplication app)
         {
             var manager = ManagerFromType(this.Type);
@@ -42,6 +45,9 @@
                 .ToList();
             var syncResults = await this.API.Projects.Sync(this.Id, syncableTerms);
             Console.WriteLine($"Synced terms. {syncResults.Parsed} parsed, {syncResults.Added} added, {syncResults.Deleted} deleted, {syncResults.Updated} updated.");
+
+            if (Language != null)
+                languages = languages.Where(l => Language.Contains(l)).ToList();
 
             foreach (var language in languages)
             {
