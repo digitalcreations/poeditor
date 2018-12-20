@@ -25,6 +25,7 @@
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.StackTrace);
                 Console.ForegroundColor = ConsoleColor.White;
+                Environment.ExitCode = -1;
             }
         }
     }
