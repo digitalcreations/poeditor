@@ -34,7 +34,8 @@
 
             var languages = await this.API.Languages.List(this.Id);
             Console.WriteLine($"Found {languages.Count} languages.");
-            languages = languages.Where(l => l.Percentage > (decimal)this.CompletionPercentage).ToList();
+            languages = languages
+                .Where(l => l.Percentage > (decimal)this.CompletionPercentage).ToList();
             Console.WriteLine($"{languages.Count} languages are at least {this.CompletionPercentage:N2}% complete.");
 
             var translations = new List<Translation>();

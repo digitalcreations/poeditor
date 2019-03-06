@@ -10,6 +10,7 @@
     [Subcommand("terms", typeof(TermsCommand))]
     [Subcommand("languages", typeof(LanguagesCommand))]
     [Subcommand("folder", typeof(FolderCommand))]
+    [Subcommand("csproj", typeof(CsProjCommand))]
     class Program : POEditorCommandBase
     {
         static async Task Main(string[] args)
