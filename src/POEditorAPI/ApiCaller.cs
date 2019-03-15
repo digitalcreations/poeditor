@@ -58,7 +58,7 @@
         public async Task<T> Request<T>(string relativeUrl, IDictionary<string, string> parameters)
         {
             parameters.Add("api_token", this._apiToken);
-            var content = new FormUrlEncodedContent(parameters);
+            var content = new CustomFormUrlEncodedContent(parameters);
 
             var response = await this._httpClient.PostAsync(relativeUrl, content);
             var json = await response.Content.ReadAsStringAsync();
