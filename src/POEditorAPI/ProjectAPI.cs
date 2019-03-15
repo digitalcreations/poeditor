@@ -4,11 +4,9 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
 
     public class ProjectAPI
     {
@@ -129,82 +127,5 @@
 
             return response.Url;
         }
-    }
-
-    public class FileExport
-    {
-        public Uri Url { get; set; }
-    }
-
-    public enum FileType
-    {
-        PO,
-        POT,
-        MO,
-        XLS,
-        CSV,
-        RESW,
-        RESX,
-        AndroidStrings,
-        AppleStrings,
-        XLIFF,
-        Properties,
-        KeyValueJSON,
-        JSON,
-        XMB,
-        XTB
-    }
-
-    public enum Filters
-    {
-        Translated,
-        Untranslated,
-        Fuzzy,
-        NotFuzzy,
-        Automatic,
-        NotAutomatic,
-        Proofread,
-        NotProofread
-    }
-
-    public static class FileTypeExtensions
-    {
-        private static Dictionary<FileType, string> LookupTable = new Dictionary<FileType, string>
-                                                                      {
-                                                                          { FileType.PO, "po" },
-                                                                          { FileType.POT, "pot"},
-                                                                          { FileType.MO, "mo" },
-                                                                          { FileType.XLS, "xls" },
-                                                                          { FileType.CSV, "csv" },
-                                                                          { FileType.RESW, "resw" },
-                                                                          { FileType.RESX, "resx" },
-                                                                          { FileType.AndroidStrings, "android_strings" },
-                                                                          { FileType.AppleStrings, "apple_strings" },
-                                                                          { FileType.XLIFF, "xliff" },
-                                                                          { FileType.Properties, "properties" },
-                                                                          { FileType.KeyValueJSON, "key_value_json" },
-                                                                          { FileType.JSON, "json" },
-                                                                          { FileType.XMB, "xmb" },
-                                                                          { FileType.XTB, "xtb" }
-                                                                      };
-
-        public static string ToPOEditorString(this FileType type)
-        {
-            return LookupTable[type];
-        }
-    }
-
-    public static class FiltersExtensions
-    {
-        public static string ToPOEditorString(this IEnumerable<Filters> filters)
-        {
-            return JsonConvert.SerializeObject(filters.Select(f => f.ToPOEditorString()).ToArray());
-        }
-
-        public static string ToPOEditorString(this Filters filter)
-        {
-            return new SnakeCaseNamingStrategy().GetPropertyName(Enum.GetName(typeof(Filters), filter), false);
-        }
-        
     }
 }

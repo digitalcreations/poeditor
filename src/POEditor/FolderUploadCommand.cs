@@ -46,8 +46,10 @@
             var syncResults = await this.API.Projects.Sync(this.Id, syncableTerms);
             Console.WriteLine($"Synced terms. {syncResults.Parsed} parsed, {syncResults.Added} added, {syncResults.Deleted} deleted, {syncResults.Updated} updated.");
 
-            if (Language != null)
-                languages = languages.Where(l => Language.Contains(l)).ToList();
+            if (this.Language != null)
+            {
+                languages = languages.Where(l => this.Language.Contains(l)).ToList();
+            }
 
             foreach (var language in languages)
             {
