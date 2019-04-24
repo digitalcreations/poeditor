@@ -1,13 +1,14 @@
 ﻿namespace POEditor
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
 
     using McMaster.Extensions.CommandLineUtils;
 
-    using Microsoft.Build.BuildEngine;
+    using Microsoft.Build.Evaluation;
 
     [Command("patch", Description = "Patch .csproj file to include .resx-files correctly")]
     class PatchCsProjCommand
@@ -20,7 +21,7 @@
         {
             if (!File.Exists(this.Project))
             {
-                Console.WriteLine("Project file not specified.");
+                Console.WriteLine("Project file not found.");
 
                 return Task.FromResult<int>(-1);
             }
@@ -31,39 +32,10 @@
                 return Task.FromResult<int>(-1);
             }
 
-            var proj = new Project();
-            proj.Load(this.Project);
+            var proj = new Project(this.Project, globalProperties: null, toolsVersion: null, projectCollection: ProjectCollection.GlobalProjectCollection, loadSettings: ProjectLoadSettings.IgnoreMissingImports);
 
-            var itemGroups = proj.ItemGroups
-                .Cast<BuildItemGroup>()
-                .Where(g => g.Cast<BuildItem>().Any(i => i.Include.EndsWith(".resx", StringComparison.InvariantCultureIgnoreCase)));
+            proj.RemoveItems(proj.Items.Where(i => i.IsResourceFile() || i.isDependentOnResourceFile()));
 
-            Console.WriteLine($"Found {itemGroups.Count()} ItemGroups with .resx files. Removing any .resx files (and generated files dependent upon them) from these ItemGroups.");
-            var removedItems = 0;
-            foreach (var itemGroup in itemGroups)
-            {
-                var items = itemGroup
-                    .Cast<BuildItem>()
-                    .Where(i => IsResourceFile(i) || IsGeneratedFileDependentUponResourceFile(i, itemGroup))
-                    .ToList();
-
-                foreach (var item in items)
-                {
-                    itemGroup.RemoveItem(item);
-                    removedItems++;
-                }
-            }
-
-            Console.WriteLine($"Removed {removedItems} items.");
-
-            var emptyItemGroups = proj.ItemGroups.Cast<BuildItemGroup>().Where(g => g.Count == 0).ToList();
-            Console.WriteLine($"Left with {emptyItemGroups.Count} empty item groups. Removing them.");
-            foreach (var itemGroup in emptyItemGroups)
-            {
-                proj.RemoveItemGroup(itemGroup);
-            }
-
-            var resourceItemGroup = proj.AddNewItemGroup();
             var directory = Path.GetDirectoryName(this.Project);
             var resourceFiles = Directory.GetFiles(directory, "*.resx", SearchOption.AllDirectories)
                 .Select(f => f.Replace(directory, "").TrimStart(Path.DirectorySeparatorChar))
@@ -75,36 +47,37 @@
             foreach (var group in resourceFiles)
             {
                 var owner = group.First();
-                var resource = resourceItemGroup.AddNewItem("EmbeddedResource", owner);
-                resource.SetMetadata("Generator", "PublicResXFileCodeGenerator");
-                resource.SetMetadata("LastGenOutput", Path.GetFileNameWithoutExtension(owner) + ".Designer.cs");
+                proj.AddItem("EmbeddedResource", owner, new List<KeyValuePair<string, string>> {
+                    new KeyValuePair<string, string>("Generator", "PublicResXFileCodeGenerator"),
+                    new KeyValuePair<string, string>("LastGenOutput", Path.GetFileNameWithoutExtension(owner) + ".Designer.cs") });
 
-                var designerResource = resourceItemGroup.AddNewItem("Compile", Path.ChangeExtension(owner, ".Designer.cs"));
-                designerResource.SetMetadata("DependentUpon", Path.GetFileName(owner), true);
-                designerResource.SetMetadata("AutoGen", "True", true);
-                designerResource.SetMetadata("DesignTime", "True", true);
+                proj.AddItem("Compile", Path.ChangeExtension(owner, ".Designer.cs"), new List<KeyValuePair<string, string>> {
+                    new KeyValuePair<string, string>("DependentUpon", Path.GetFileName(owner)),
+                    new KeyValuePair<string, string>("AutoGen", "True"),
+                    new KeyValuePair<string, string>("DesignTime", "True")
+                });
+
                 foreach (var item in group.Skip(1))
                 {
-                    var x = resourceItemGroup.AddNewItem("EmbeddedResource", item);
-                    x.SetMetadata("DependentUpon", Path.GetFileName(owner), true);
+                    proj.AddItem("EmbeddedResource", item, new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("DependentUpon", Path.GetFileName(owner))
+                    });
                 }
             }
 
             Console.WriteLine("Saving project file.");
-
-            proj.Save(this.Project);
+            proj.Save();
 
             return Task.FromResult(0);
         }
 
-        private static bool IsGeneratedFileDependentUponResourceFile(BuildItem parentResourceFile, BuildItemGroup itemGroup)
-        {
-            return parentResourceFile.Include.EndsWith(".designer.cs", StringComparison.InvariantCultureIgnoreCase) && itemGroup.Cast<BuildItem>().Any(i2 => i2.GetMetadata("DependentUpon").EndsWith(".resx", StringComparison.InvariantCultureIgnoreCase));
-        }
 
-        private static bool IsResourceFile(BuildItem buildItem)
-        {
-            return buildItem.Include.EndsWith(".resx", StringComparison.InvariantCultureIgnoreCase);
-        }
+    }
+
+    static class ItemExtensions
+    {
+        public static bool IsResourceFile(this ProjectItem projectItem) => projectItem.UnevaluatedInclude.EndsWith(".resx", StringComparison.InvariantCultureIgnoreCase);
+        public static bool isDependentOnResourceFile(this ProjectItem projectItem) => projectItem.HasMetadata("DependentUpon") && projectItem.GetMetadataValue("DependentUpon").EndsWith(".resx", StringComparison.InvariantCultureIgnoreCase);
     }
 }
