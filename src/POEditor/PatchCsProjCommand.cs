@@ -34,7 +34,7 @@
 
             var proj = new Project(this.Project, globalProperties: null, toolsVersion: null, projectCollection: ProjectCollection.GlobalProjectCollection, loadSettings: ProjectLoadSettings.IgnoreMissingImports);
 
-            proj.RemoveItems(proj.Items.Where(i => i.IsResourceFile() || i.isDependentOnResourceFile()));
+            proj.RemoveItems(proj.Items.Where(i => i.IsResourceFile() || i.IsDependentOnResourceFile()));
 
             var directory = Path.GetDirectoryName(this.Project);
             var resourceFiles = Directory.GetFiles(directory, "*.resx", SearchOption.AllDirectories)
@@ -78,6 +78,6 @@
     static class ItemExtensions
     {
         public static bool IsResourceFile(this ProjectItem projectItem) => projectItem.UnevaluatedInclude.EndsWith(".resx", StringComparison.InvariantCultureIgnoreCase);
-        public static bool isDependentOnResourceFile(this ProjectItem projectItem) => projectItem.HasMetadata("DependentUpon") && projectItem.GetMetadataValue("DependentUpon").EndsWith(".resx", StringComparison.InvariantCultureIgnoreCase);
+        public static bool IsDependentOnResourceFile(this ProjectItem projectItem) => projectItem.HasMetadata("DependentUpon") && projectItem.GetMetadataValue("DependentUpon").EndsWith(".resx", StringComparison.InvariantCultureIgnoreCase);
     }
 }
