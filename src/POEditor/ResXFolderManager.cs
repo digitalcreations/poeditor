@@ -3,18 +3,36 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.Design;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Resources;
-    using System.Text.RegularExpressions;
 
     class ResXFolderManager : IFolderManager
     {
         public string SearchPattern { get; } = "*.resx";
+        private readonly HashSet<string> locales;
 
-        public string NameFromFilePath(string relativePath, string entryName)
+        public ResXFolderManager()
         {
-            return Regex.Replace(relativePath, @"(\.[a-z]{2}(-[a-z]{2})?)?\.resx$", "", RegexOptions.IgnoreCase).Trim('\\') + "::" + entryName;
+            locales = CultureInfo.GetCultures(CultureTypes.AllCultures).Select(c => c.Name).Where(c => !string.IsNullOrWhiteSpace(c)).ToHashSet();
+        }
+
+        public string NameFromFilePath(string path, string entryName)
+        {
+            // Trim ".resx" from filename
+            path = path[0..^5];
+
+            if (path.Contains('.'))
+            {
+                var lastPart = Path.GetFileName(path).Split('.').Last();
+                if (locales.Contains(lastPart))
+                {
+                    path = path[0..^(lastPart.Length + 1)];
+                }
+            }
+
+            return path + "::" + entryName;
         }
 
         public IEnumerable<Translation> GetResources(string path, string basePath)
@@ -46,7 +64,7 @@
 
         public Tuple<string, string> ParseName(string name, string language)
         {
-            var parts = name.Split(new [] { "::" }, 2, StringSplitOptions.None);
+            var parts = name.Split(new[] { "::" }, 2, StringSplitOptions.None);
             if (!string.IsNullOrWhiteSpace(language))
             {
                 language = "." + language;
@@ -72,7 +90,7 @@
                 {
                     foreach (var translation in file)
                     {
-                        var(__, name) = this.ParseName(translation.Name, language);
+                        var (__, name) = this.ParseName(translation.Name, language);
                         writer.AddResource(new ResXDataNode(name, translation.Text) { Comment = translation.Comment });
                     }
                 }
