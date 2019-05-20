@@ -58,15 +58,15 @@
                 {
                     embeddedResourceMetadata.Add(new KeyValuePair<string, string>("Generator", "PublicResXFileCodeGenerator"));
                     embeddedResourceMetadata.Add(new KeyValuePair<string, string>("LastGenOutput", designerFilename));
-                }
 
-                proj.AddItem("EmbeddedResource", owner, embeddedResourceMetadata);
-
-                proj.AddItem("Compile", Path.ChangeExtension(owner, ".Designer.cs"), new List<KeyValuePair<string, string>> {
+                    proj.AddItem("Compile", designerFilename, new List<KeyValuePair<string, string>> {
                     new KeyValuePair<string, string>("DependentUpon", Path.GetFileName(owner)),
                     new KeyValuePair<string, string>("AutoGen", "True"),
                     new KeyValuePair<string, string>("DesignTime", "True")
                 });
+                }
+
+                proj.AddItem("EmbeddedResource", owner, embeddedResourceMetadata);
 
                 foreach (var item in group.Skip(1))
                 {
