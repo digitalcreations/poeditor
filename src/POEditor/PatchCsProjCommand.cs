@@ -32,6 +32,9 @@
                 return Task.FromResult<int>(-1);
             }
 
+            var originalWorkingDirectory = Directory.GetCurrentDirectory();
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(this.Project));
+
             var proj = new Project(this.Project, globalProperties: null, toolsVersion: null, projectCollection: ProjectCollection.GlobalProjectCollection, loadSettings: ProjectLoadSettings.IgnoreMissingImports);
 
             proj.RemoveItems(proj.Items.Where(i => i.IsResourceFile() || i.IsDependentOnResourceFile()));
@@ -47,9 +50,17 @@
             foreach (var group in resourceFiles)
             {
                 var owner = group.First();
-                proj.AddItem("EmbeddedResource", owner, new List<KeyValuePair<string, string>> {
-                    new KeyValuePair<string, string>("Generator", "PublicResXFileCodeGenerator"),
-                    new KeyValuePair<string, string>("LastGenOutput", Path.GetFileNameWithoutExtension(owner) + ".Designer.cs") });
+
+                var designerFilename = Path.Combine(Path.GetDirectoryName(owner), Path.GetFileNameWithoutExtension(owner) + ".Designer.cs");
+
+                var embeddedResourceMetadata = new List<KeyValuePair<string, string>>();
+                if (File.Exists(designerFilename))
+                {
+                    embeddedResourceMetadata.Add(new KeyValuePair<string, string>("Generator", "PublicResXFileCodeGenerator"));
+                    embeddedResourceMetadata.Add(new KeyValuePair<string, string>("LastGenOutput", designerFilename));
+                }
+
+                proj.AddItem("EmbeddedResource", owner, embeddedResourceMetadata);
 
                 proj.AddItem("Compile", Path.ChangeExtension(owner, ".Designer.cs"), new List<KeyValuePair<string, string>> {
                     new KeyValuePair<string, string>("DependentUpon", Path.GetFileName(owner)),
@@ -68,6 +79,7 @@
 
             Console.WriteLine("Saving project file.");
             proj.Save();
+            Directory.SetCurrentDirectory(originalWorkingDirectory);
 
             return Task.FromResult(0);
         }
