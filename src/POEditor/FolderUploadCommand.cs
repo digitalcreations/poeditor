@@ -33,6 +33,7 @@
             var initialDirectory = Directory.GetCurrentDirectory();
             var translations = Directory.EnumerateFiles(this.Path, manager.SearchPattern, SearchOption.AllDirectories)
                 .SelectMany(p => manager.GetResources(p, this.Path))
+                .Where(t => this.Language.Contains(t.Language))
                 .ToList();
             Directory.SetCurrentDirectory(initialDirectory);
 
