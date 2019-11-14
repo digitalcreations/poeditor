@@ -5,7 +5,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <OutputPath>..\..\artifacts</OutputPath>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <!--<PackAsTool>true</PackAsTool>-->
+    <PackAsTool>true</PackAsTool>
     <ToolCommandName>poeditor</ToolCommandName>
     <PackageOutputPath>../../artifacts</PackageOutputPath>
   </PropertyGroup>
