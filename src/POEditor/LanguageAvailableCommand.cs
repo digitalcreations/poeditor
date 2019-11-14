@@ -7,6 +7,7 @@
 
     using McMaster.Extensions.CommandLineUtils;
 
+    [Command("available")]
     class LanguageAvailableCommand : POEditorCommandBase
     {
         public override async Task<int> OnExecuteAsync(CommandLineApplication app)

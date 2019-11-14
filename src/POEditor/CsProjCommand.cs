@@ -4,7 +4,7 @@
 
     [Command("csproj")]
     [HelpOption("--help")]
-    [Subcommand("patch", typeof(PatchCsProjCommand))]
+    [Subcommand(typeof(PatchCsProjCommand))]
     class CsProjCommand 
     {
 

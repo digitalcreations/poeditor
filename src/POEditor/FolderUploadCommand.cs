@@ -11,6 +11,7 @@
 
     using POEditorAPI;
 
+    [Command("upload")]
     class FolderUploadCommand : POEditorCommandBase
     {
         [Option(CommandOptionType.SingleValue, Description = "Project id")]

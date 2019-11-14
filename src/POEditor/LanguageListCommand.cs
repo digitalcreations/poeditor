@@ -7,6 +7,7 @@
 
     using McMaster.Extensions.CommandLineUtils;
 
+    [Command("list")]
     class LanguageListCommand : POEditorCommandBase
     {
         [Option(CommandOptionType.SingleValue, Description = "Project id")]

@@ -6,11 +6,11 @@
     using McMaster.Extensions.CommandLineUtils;
 
     [Command("poeditor")]
-    [Subcommand("projects", typeof(ProjectCommand))]
-    [Subcommand("terms", typeof(TermsCommand))]
-    [Subcommand("languages", typeof(LanguagesCommand))]
-    [Subcommand("folder", typeof(FolderCommand))]
-    [Subcommand("csproj", typeof(CsProjCommand))]
+    [Subcommand(typeof(ProjectCommand))]
+    [Subcommand(typeof(TermsCommand))]
+    [Subcommand(typeof(LanguagesCommand))]
+    [Subcommand(typeof(FolderCommand))]
+    [Subcommand(typeof(CsProjCommand))]
     class Program : POEditorCommandBase
     {
         static async Task Main(string[] args)

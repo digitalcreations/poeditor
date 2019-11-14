@@ -8,6 +8,7 @@
 
     using McMaster.Extensions.CommandLineUtils;
 
+    [Command("list")]
     class TermsListCommand : POEditorCommandBase
     {
         [Option(CommandOptionType.SingleValue, Description = "Project id")]

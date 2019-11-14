@@ -11,6 +11,7 @@
 
     using POEditorAPI;
 
+    [Command("add")]
     class TermsAddCommand : POEditorCommandBase
     {
         [Option(CommandOptionType.SingleValue, Description = "Project id")]

@@ -9,6 +9,7 @@
 
     using McMaster.Extensions.CommandLineUtils;
 
+    [Command("download")]
     class FolderDownloadCommand : POEditorCommandBase
     {
         [Option(CommandOptionType.SingleValue, Description = "Project id")]

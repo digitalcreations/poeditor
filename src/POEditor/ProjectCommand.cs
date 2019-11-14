@@ -1,12 +1,10 @@
 ﻿namespace POEditor
 {
-    using System.Security.Cryptography;
-
     using McMaster.Extensions.CommandLineUtils;
 
     [Command("projects")]
-    [Subcommand("list", typeof(ProjectListCommand))]
-    [Subcommand("view", typeof(ProjectViewCommand))]
+    [Subcommand(typeof(ProjectListCommand))]
+    [Subcommand(typeof(ProjectViewCommand))]
     class ProjectCommand : POEditorCommandBase
     {
 

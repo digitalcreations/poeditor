@@ -5,6 +5,7 @@
 
     using McMaster.Extensions.CommandLineUtils;
 
+    [Command("add")]
     class LanguageAddCommand : POEditorCommandBase
     {
         [Option(CommandOptionType.SingleValue, Description = "Project id")]
